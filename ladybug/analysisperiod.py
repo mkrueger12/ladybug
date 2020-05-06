@@ -2,10 +2,11 @@
 """Ladybug analysis period class."""
 from __future__ import division
 
+import sys
+from datetime import datetime, timedelta
+
 from .dt import DateTime
 
-from datetime import datetime, timedelta
-import sys
 if (sys.version_info >= (3, 0)):
     xrange = range
 
@@ -58,6 +59,12 @@ class AnalysisPeriod(object):
     NUMOFDAYSEACHMONTHLEAP = (31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
     MONTHNAMES = {1: 'Jan', 2: 'Feb', 3: 'Mar',  4: 'Apr', 5: 'May', 6: 'Jun',
                   7: 'Jul', 8: 'Aug', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dec'}
+
+    __slots__ = (
+        '_is_leap_year', '_st_time', '_num_of_days_each_month', '_is_overnight',
+        '_is_reversed', '_timestep', '_minute_intervals', '_end_time',
+        '_timestamps_data'
+    )
 
     # TODO: handle timestep between 1-60
     def __init__(self, st_month=1, st_day=1, st_hour=0, end_month=12,
@@ -400,7 +407,7 @@ class AnalysisPeriod(object):
             # This is for cases that timestep is more than one
             # and last hour of the day is part of the calculation
             curr = end_time
-            for i in list(xrange(self.timestep))[1:]:
+            for _ in list(xrange(self.timestep))[1:]:
                 curr += self.minute_intervals
                 time = DateTime(curr.month, curr.day, curr.hour, curr.minute,
                                 self.is_leap_year)
@@ -454,12 +461,11 @@ class AnalysisPeriod(object):
     def __key(self):
         return(self.st_time, self.end_time, self.timestep, self.is_leap_year)
 
-    
     def __hash__(self):
         return hash(self.__key())
-    
+
     def __eq__(self, other):
         return isinstance(other, AnalysisPeriod) and self.__key() == other.__key()
-    
+
     def __ne__(self, other):
         return not self.__eq__(other)

@@ -31,12 +31,13 @@ are faster when the collection is continuous.
 """
 from __future__ import division
 
+from collections import OrderedDict
+
 from ._datacollectionbase import BaseCollection
-from .header import Header
 from .analysisperiod import AnalysisPeriod
 from .dt import DateTime
+from .header import Header
 
-from collections import OrderedDict
 try:
     from collections.abc import Iterable  # python < 3.7
 except ImportError:
@@ -1512,6 +1513,9 @@ class MonthlyPerHourCollection(BaseCollection):
         a_per = self.header.analysis_period
         return self._validated_a_period and a_per.st_hour == 0 and a_per.end_hour \
                 == 23 and len(self.values) == len(a_per.months_per_hour)
+
+    def __key(self):
+        return (self.header, self.values)
 
     def __repr__(self):
         """Monthly Per Hour Collection representation."""
